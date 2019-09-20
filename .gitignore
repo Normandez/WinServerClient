@@ -1,0 +1,11 @@
+.vs/*
+GeneratedFiles/*
+release/*
+debug/*
+x64/*
+.qmake*
+ui_*.h
+*.pro.user
+*.sln
+*.VC*
+*.vcxproj*
