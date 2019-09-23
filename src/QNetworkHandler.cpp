@@ -14,6 +14,7 @@ void QNetworkHandler::onSendRequest( const QString& host_name, const QString& po
 	QTcpSocket socket;
 	int wait_timeout = 3000;	// 3 sec
 
+	// Connecting to server
 	socket.connectToHost( host_name, port.toInt() );
 	if( !socket.waitForConnected(wait_timeout) )
 	{
@@ -21,6 +22,7 @@ void QNetworkHandler::onSendRequest( const QString& host_name, const QString& po
 		return;
 	}
 
+	// Constructing reqeust
 	QString request_headers = "";
 	request_headers += "POST / HTTP/1.1\n";
 	request_headers += "Host: WinServerClient\n";
@@ -28,6 +30,7 @@ void QNetworkHandler::onSendRequest( const QString& host_name, const QString& po
 	request_headers += "Content-Length: " + QString::number( payload.length() ) + "\n";
 	QString completed_request = request_headers + "\n" + payload;
 
+	// Sending request
 	socket.write( completed_request.toLocal8Bit() );
 	if( !socket.waitForBytesWritten(wait_timeout) )
 	{
@@ -35,12 +38,14 @@ void QNetworkHandler::onSendRequest( const QString& host_name, const QString& po
 		return;
 	}
 
+	// Waiting for response
 	if( !socket.waitForReadyRead(wait_timeout) )
 	{
 		emit error( socket.error(), "Request receive timeout" );
 		return;
 	}
 
+	// Reading response data
 	QString completed_response = socket.readAll();
 	emit newResponse( completed_response.split("\r\n").last() );
 }

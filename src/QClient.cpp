@@ -7,51 +7,55 @@ QClient::QClient( QApplication* app, QWidget* parent /*= nullptr*/ )
 	: QWidget(parent),
 	  m_ui( new Ui::QClient )
 {
+	// Init GUI
 	QMessageBox error_msg;
 	error_msg.setWindowTitle("Connection Error");
 	error_msg.setIcon( QMessageBox::Critical );
-
 	m_ui->setupUi(this);
 
 	QNetworkHandler* network_handler = new QNetworkHandler();
 
-	bool connection_chk = connect( network_handler, &QNetworkHandler::newResponse, this, &QClient::onResponseReady );
-	if(!connection_chk)
+	// Connections region
 	{
-		error_msg.setText("Connection 'NetworkHandler::newResponse() <---> Client::onResponseReady()' failed");
-		error_msg.exec();
-	}
-	connection_chk = connect( network_handler, &QNetworkHandler::error, this, &QClient::onResponseError );
-	if(!connection_chk)
-	{
-		error_msg.setText("Connection 'NetworkHandler::error() <---> Client::onResponseError' failed");
-		error_msg.exec();
-	}
-	connection_chk = connect( this, &QClient::sendRequest, network_handler, &QNetworkHandler::onSendRequest );
-	if(!connection_chk)
-	{
-		error_msg.setText("Connection 'Client::sendRequest() <---> NetworkHandler::onSendRequest()' failed");
-		error_msg.exec();
-	}
-	connection_chk = connect( &m_network_thrd, &QThread::finished, network_handler, &QNetworkHandler::deleteLater );
-	if(!connection_chk)
-	{
-		error_msg.setText("Connection 'NetworkHandlerThread::finished() <---> NetworkHandler::deleteLater()' failed");
-		error_msg.exec();
-	}
-	connection_chk = connect( m_ui->button_quit, &QPushButton::clicked, app, &QApplication::quit );
-	if(!connection_chk)
-	{
-		error_msg.setText("Connection 'ButtonQuit::clicked() <---> QApplication::quit()' failed");
-		error_msg.exec();
-	}
-	connection_chk = connect( m_ui->button_send, &QPushButton::clicked, this, &QClient::onBtnSendClicked );
-	if(!connection_chk)
-	{
-		error_msg.setText("Connection 'ButtonSend::clicked() <---> Client::onBtnSendClicked()' failed");
-		error_msg.exec();
+		bool connection_chk = connect( network_handler, &QNetworkHandler::newResponse, this, &QClient::onResponseReady );
+		if(!connection_chk)
+		{
+			error_msg.setText("Connection 'NetworkHandler::newResponse() <---> Client::onResponseReady()' failed");
+			error_msg.exec();
+		}
+		connection_chk = connect( network_handler, &QNetworkHandler::error, this, &QClient::onResponseError );
+		if(!connection_chk)
+		{
+			error_msg.setText("Connection 'NetworkHandler::error() <---> Client::onResponseError' failed");
+			error_msg.exec();
+		}
+		connection_chk = connect( this, &QClient::sendRequest, network_handler, &QNetworkHandler::onSendRequest );
+		if(!connection_chk)
+		{
+			error_msg.setText("Connection 'Client::sendRequest() <---> NetworkHandler::onSendRequest()' failed");
+			error_msg.exec();
+		}
+		connection_chk = connect( &m_network_thrd, &QThread::finished, network_handler, &QNetworkHandler::deleteLater );
+		if(!connection_chk)
+		{
+			error_msg.setText("Connection 'NetworkHandlerThread::finished() <---> NetworkHandler::deleteLater()' failed");
+			error_msg.exec();
+		}
+		connection_chk = connect( m_ui->button_quit, &QPushButton::clicked, app, &QApplication::quit );
+		if(!connection_chk)
+		{
+			error_msg.setText("Connection 'ButtonQuit::clicked() <---> QApplication::quit()' failed");
+			error_msg.exec();
+		}
+		connection_chk = connect( m_ui->button_send, &QPushButton::clicked, this, &QClient::onBtnSendClicked );
+		if(!connection_chk)
+		{
+			error_msg.setText("Connection 'ButtonSend::clicked() <---> Client::onBtnSendClicked()' failed");
+			error_msg.exec();
+		}
 	}
 
+	// Starts network handling
 	network_handler->moveToThread(&m_network_thrd);
 	m_network_thrd.start();
 }
@@ -59,7 +63,10 @@ QClient::QClient( QApplication* app, QWidget* parent /*= nullptr*/ )
 QClient::~QClient()
 {
 	m_network_thrd.quit();
-	m_network_thrd.wait();
+	if( !m_network_thrd.wait(5000) )	// 5 sec
+	{
+		m_network_thrd.terminate();
+	}
 }
 
 QString QClient::GeneratePayload( const QString& data_value ) const

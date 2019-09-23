@@ -10,7 +10,7 @@
 int main( int argc, char* argv[] )
 {
 	int ret = 0;
-	std::ofstream exception_strm( "exception.log", std::ios_base::out | std::ios_base::trunc );
+	std::ofstream exception_strm( "exception.log", std::ios_base::out | std::ios_base::trunc );		// Info about handled exceptions
 	if( !exception_strm.is_open() )
 	{
 		printf("exception log file not opened");
