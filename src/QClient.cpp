@@ -12,6 +12,7 @@ QClient::QClient( QApplication* app, QWidget* parent /*= nullptr*/ )
 	error_msg.setWindowTitle("Connection Error");
 	error_msg.setIcon( QMessageBox::Critical );
 	m_ui->setupUi(this);
+	this->setWindowTitle("WinServerClient");
 
 	QNetworkHandler* network_handler = new QNetworkHandler();
 
