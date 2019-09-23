@@ -9,25 +9,38 @@ QNetworkHandler::QNetworkHandler( QObject* parent /*= nullptr*/ )
 QNetworkHandler::~QNetworkHandler()
 { }
 
-void QNetworkHandler::onSendRequest( const QString& host_name, qint16 port, const QString& payload )
+void QNetworkHandler::onSendRequest( const QString& host_name, const QString& port, const QString& payload )
 {
-	QNetworkAccessManager netwokr_manager;
-	QNetworkRequest request;
-	int wait_timeout = 5000;	// 5 sec
+	QTcpSocket socket;
+	int wait_timeout = 3000;	// 3 sec
 
-	request.setUrl( host_name + ":" + QString(port) );
-	request.setHeader( QNetworkRequest::ContentTypeHeader, "application/json" );
-
-	QNetworkReply* reply = netwokr_manager.post( request, payload.toLocal8Bit() );
-	if( !reply->waitForReadyRead(wait_timeout) )
+	socket.connectToHost( host_name, port.toInt() );
+	if( !socket.waitForConnected(wait_timeout) )
 	{
-		emit error( reply->error(), reply->errorString() );
-	}
-	else
-	{
-		QString response_data = reply->readAll();
-		emit newResponse(response_data);
+		emit error( socket.error(), socket.errorString() );
+		return;
 	}
 
-	reply->deleteLater();
+	QString request_headers = "";
+	request_headers += "POST / HTTP/1.1\n";
+	request_headers += "Host: WinServerClient\n";
+	request_headers += "Content-Type: application/json\n";
+	request_headers += "Content-Length: " + QString::number( payload.length() ) + "\n";
+	QString completed_request = request_headers + "\n" + payload;
+
+	socket.write( completed_request.toLocal8Bit() );
+	if( !socket.waitForBytesWritten(wait_timeout) )
+	{
+		emit error( socket.error(), "Request send timeout" );
+		return;
+	}
+
+	if( !socket.waitForReadyRead(wait_timeout) )
+	{
+		emit error( socket.error(), "Request receive timeout" );
+		return;
+	}
+
+	QString completed_response = socket.readAll();
+	emit newResponse( completed_response.split("\r\n").last() );
 }

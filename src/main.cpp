@@ -8,7 +8,7 @@ int main( int argc, char* argv[] )
 {
 	QApplication app( argc, argv );
 
-	QClient client;
+	QClient client(&app);
 	client.show();
 
 	return app.exec();

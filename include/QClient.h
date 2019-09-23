@@ -5,9 +5,11 @@
 
 #include <QWidget>
 #include <QMessageBox>
+
 #include <QThread>
 
 #include <QJsonDocument>
+#include <QJsonObject>
 
 #include "QNetworkHandler.h"
 
@@ -22,7 +24,7 @@ class QClient
 	Q_OBJECT
 
 public:
-	QClient( QWidget* parent = nullptr );
+	QClient( QApplication* app, QWidget* parent = nullptr );
 	virtual ~QClient();
 
 private:
@@ -32,9 +34,11 @@ private:
 	inline QString GeneratePayload( const QString& data_value ) const;
 
 signals:
-	void sendRequest( const QString& host_name, qint16 port, const QString& payload );
+	void sendRequest( const QString& host_name, const QString& port, const QString& payload );
 
 private slots:
+	void onBtnSendClicked();
+
 	void onResponseReady( const QString& response );
 	void onResponseError( int request_err, const QString& err_msg );
 

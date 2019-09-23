@@ -46,6 +46,9 @@
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="text">
+        <string>localhost</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -81,6 +84,9 @@
        </property>
        <property name="styleSheet">
         <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>27015</string>
        </property>
       </widget>
      </item>
@@ -127,6 +133,9 @@
             <font>
              <pointsize>11</pointsize>
             </font>
+           </property>
+           <property name="plainText">
+            <string>123456789</string>
            </property>
           </widget>
          </item>

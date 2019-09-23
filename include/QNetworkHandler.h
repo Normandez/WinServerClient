@@ -5,9 +5,7 @@
 
 #include <QObject>
 
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
+#include <QTcpSocket>
 
 class QNetworkHandler
 	: public QObject
@@ -23,7 +21,7 @@ signals:
 	void error( int request_err, const QString& err_msg );
 
 public slots:
-	void onSendRequest( const QString& host_name, qint16 port, const QString& payload );
+	void onSendRequest( const QString& host_name, const QString& port, const QString& payload );
 
 };
 
